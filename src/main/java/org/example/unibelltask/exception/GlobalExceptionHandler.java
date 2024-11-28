@@ -1,6 +1,7 @@
 package org.example.unibelltask.exception;
 
 import jakarta.validation.ConstraintViolation;
+import org.example.unibelltask.utils.ErrorMessages;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -55,19 +56,19 @@ public class GlobalExceptionHandler {
                 if (constraintName != null) {
                     switch (constraintName) {
                         case "uq_phone_number":
-                            return "Номер телефона уже существует.";
+                            return ErrorMessages.PHONE_ALREADY_EXISTS;
                         case "uq_email_address":
-                            return "Адрес электронной почты уже существует.";
+                            return ErrorMessages.EMAIL_ALREADY_EXISTS;
                         default:
-                            return "Нарушение ограничения данных: " + constraintName;
+                            return ErrorMessages.DATA_CONSTRAINT_VIOLATION + ": " + constraintName;
                     }
                 } else {
-                    return "Нарушение ограничения данных.";
+                    return ErrorMessages.DATA_CONSTRAINT_VIOLATION;
                 }
             }
             cause = cause.getCause();
         }
-        return "Нарушение ограничения данных.";
+        return ErrorMessages.DATA_CONSTRAINT_VIOLATION;
     }
 
     /**
@@ -126,7 +127,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
 
-        String message = String.format("Неверное значение параметра '%s': %s", ex.getName(), ex.getValue());
+        String message = String.format(ErrorMessages.INVALID_PARAMETER_VALUE, ex.getName(), ex.getValue());
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message, Instant.now());
     }
 
@@ -140,6 +141,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleAllExceptions(Exception ex) {
 
-        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Внутренняя ошибка сервера", Instant.now());
+        return new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), ErrorMessages.INTERNAL_SERVER_ERROR,
+            Instant.now());
     }
 }

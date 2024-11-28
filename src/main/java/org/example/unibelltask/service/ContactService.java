@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.unibelltask.dto.EmailDto;
 import org.example.unibelltask.dto.PhoneDto;
+import org.example.unibelltask.dto.enums.ContactType;
 import org.example.unibelltask.entity.Client;
 import org.example.unibelltask.entity.Email;
 import org.example.unibelltask.entity.Phone;
@@ -14,6 +15,7 @@ import org.example.unibelltask.mapper.PhoneMapper;
 import org.example.unibelltask.repository.ClientRepository;
 import org.example.unibelltask.repository.EmailRepository;
 import org.example.unibelltask.repository.PhoneRepository;
+import org.example.unibelltask.utils.ClientUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,17 +23,41 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Сервис для работы с контактами.
+ *
+ * @author Kirill Shinkarev.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ContactService {
 
-    ClientRepository clientRepository;
+    /**
+     * Репозиторий телефона.
+     */
     PhoneRepository phoneRepository;
+
+    /**
+     * Репозиторий адреса почты.
+     */
     EmailRepository emailRepository;
+
+    /**
+     * Маппер телефона.
+     */
     PhoneMapper phoneMapper;
+
+    /**
+     * Маппер адреса почты.
+     */
     EmailMapper emailMapper;
+
+    /**
+     * Утилитарный класс.
+     */
+    ClientUtils clientUtils;
 
     /**
      * Добавление телефона клиенту.
@@ -44,11 +70,7 @@ public class ContactService {
 
         log.info("Добавление телефона для клиента с ID: {}", clientId);
 
-        Client client = clientRepository.findById(clientId)
-            .orElseThrow(() -> {
-                log.error("Клиент не найден с ID: {}", clientId);
-                return new RuntimeException("Клиент не найден с ID " + clientId);
-            });
+        Client client = clientUtils.findClientById(clientId);
 
         Phone phone = phoneMapper.toEntity(phoneDto);
         phone.setClient(client);
@@ -69,11 +91,7 @@ public class ContactService {
 
         log.info("Добавление email для клиента с ID: {}", clientId);
 
-        Client client = clientRepository.findById(clientId)
-            .orElseThrow(() -> {
-                log.error("Клиент не найден с ID: {}", clientId);
-                return new RuntimeException("Клиент не найден с ID " + clientId);
-            });
+        Client client = clientUtils.findClientById(clientId);
 
         Email email = emailMapper.toEntity(emailDto);
         email.setClient(client);
@@ -92,6 +110,8 @@ public class ContactService {
     public List<Object> getContactsByClientId(UUID clientId) {
 
         log.info("Получение всех контактов для клиента с ID: {}", clientId);
+
+        Client client = clientUtils.findClientById(clientId);
 
         List<PhoneDto> phones = phoneRepository.findByClientClientId(clientId).stream()
             .map(phoneMapper::toDto)
@@ -115,25 +135,28 @@ public class ContactService {
      * @param type     - тип контакта (phone или email).
      * @return - список контактов указанного типа.
      */
-    public List<Object> getContactsByTypeAndClientId(UUID clientId, String type) {
+    public List<Object> getContactsByTypeAndClientId(UUID clientId, ContactType type) {
 
         log.info("Получение контактов типа '{}' для клиента с ID: {}", type, clientId);
 
-        if (type.equalsIgnoreCase("phone")) {
-            List<Object> phones = phoneRepository.findByClientClientId(clientId).stream()
-                .map(phoneMapper::toDto)
-                .collect(Collectors.toList());
-            log.info("Найдено телефонов: {}", phones.size());
-            return phones;
-        } else if (type.equalsIgnoreCase("email")) {
-            List<Object> emails = emailRepository.findByClientClientId(clientId).stream()
-                .map(emailMapper::toDto)
-                .collect(Collectors.toList());
-            log.info("Найдено email: {}", emails.size());
-            return emails;
-        } else {
-            log.error("Неверный тип контакта: {}", type);
-            throw new IllegalArgumentException("Неверный тип контакта: " + type);
+        Client client = clientUtils.findClientById(clientId);
+
+        switch (type) {
+            case PHONE:
+                List<Object> phones = phoneRepository.findByClientClientId(clientId).stream()
+                    .map(phoneMapper::toDto)
+                    .collect(Collectors.toList());
+                log.info("Найдено телефонов: {}", phones.size());
+                return phones;
+            case EMAIL:
+                List<Object> emails = emailRepository.findByClientClientId(clientId).stream()
+                    .map(emailMapper::toDto)
+                    .collect(Collectors.toList());
+                log.info("Найдено email: {}", emails.size());
+                return emails;
+            default:
+                log.error("Неверный тип контакта: {}", type);
+                throw new IllegalArgumentException("Неверный тип контакта: " + type);
         }
     }
 }

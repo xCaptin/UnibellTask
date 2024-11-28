@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.unibelltask.dto.EmailDto;
 import org.example.unibelltask.dto.PhoneDto;
+import org.example.unibelltask.dto.enums.ContactType;
 import org.example.unibelltask.service.ContactService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -83,7 +84,7 @@ public class ContactController {
     @GetMapping
     public ResponseEntity<List<Object>> getContactsByClientId(
         @PathVariable UUID clientId,
-        @RequestParam(required = false) String type
+        @RequestParam(required = false) ContactType type
     ) {
 
         List<Object> contacts;
@@ -94,4 +95,5 @@ public class ContactController {
         }
         return ResponseEntity.ok(contacts);
     }
+
 }

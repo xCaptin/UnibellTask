@@ -6,6 +6,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.example.unibelltask.dto.ClientDto;
 import org.example.unibelltask.entity.Client;
+import org.example.unibelltask.exception.ResourceNotFoundException;
 import org.example.unibelltask.mapper.ClientMapper;
 import org.example.unibelltask.repository.ClientRepository;
 import org.springframework.data.domain.Page;
@@ -14,13 +15,25 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+/**
+ * Сервис для работы с клиентами.
+ *
+ * @author Kirill Shinkarev.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ClientService {
 
+    /**
+     * Репозиторий клиента.
+     */
     ClientRepository clientRepository;
+
+    /**
+     * Маппер клиента.
+     */
     ClientMapper clientMapper;
 
     /**
@@ -63,10 +76,11 @@ public class ClientService {
         Client client = clientRepository.findById(clientId)
             .orElseThrow(() -> {
                 log.error("Клиент не найден с ID: {}", clientId);
-                return new RuntimeException("Клиент не найден с ID " + clientId);
+                return new ResourceNotFoundException("Клиент не найден с ID " + clientId);
             });
 
         log.info("Клиент найден: {}", client);
         return clientMapper.toDto(client);
     }
+
 }

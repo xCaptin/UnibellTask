@@ -18,6 +18,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Сущность для представления клиента.
+ * Клиент может иметь несколько телефонов и email.
+ *
+ * @author Kirill Shinkarev.
+ */
 @Entity
 @Table(name = "clients")
 @Getter
@@ -26,21 +32,38 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Client {
 
+    /**
+     * Уникальный идентификатор клиента.
+     */
     @Id
     @GeneratedValue
     @Column(name = "client_id")
     private UUID clientId;
 
+    /**
+     * Имя клиента. Не должно быть пустым.
+     */
     @NotBlank(message = "Имя не должно быть пустым")
     private String firstName;
 
+    /**
+     * Фамилия клиента. Не должна быть пустой.
+     */
     @NotBlank(message = "Фамилия не должна быть пустым")
     private String lastName;
 
+    /**
+     * Список телефонов клиента.
+     * Управляется каскадно и поддерживается связь с клиентом.
+     */
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private Set<Phone> phones = new HashSet<>();
 
+    /**
+     * Список email клиента.
+     * Управляется каскадно и поддерживается связь с клиентом.
+     */
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private Set<Email> emails = new HashSet<>();

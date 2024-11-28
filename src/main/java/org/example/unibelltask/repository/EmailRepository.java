@@ -7,6 +7,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Репозиторий для работы с почтой клиента.
+ *
+ * @author Kirill Shinkarev.
+ */
 @Repository
 public interface EmailRepository extends JpaRepository<Email, UUID> {
 

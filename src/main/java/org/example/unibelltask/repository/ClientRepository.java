@@ -8,6 +8,11 @@ import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
 
+/**
+ * Репозиторий для работы с клиентами.
+ *
+ * @author Kirill Shinkarev.
+ */
 @Repository
 public interface ClientRepository extends JpaRepository<Client, UUID> {
 

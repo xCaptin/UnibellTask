@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/1.0/create_schema.sql
+  - include:
+      file: db/changelog/1.0/create_extensions.sql
+  - include:
+      file: db/changelog/1.0/create_clients_table.sql
+  - include:
+      file: db/changelog/1.0/create_phones_table.sql
+  - include:
+      file: db/changelog/1.0/create_emails_table.sql

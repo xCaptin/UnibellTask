@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: unibell_postgres
+    environment:
+      POSTGRES_DB: unibell_cs_db
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - unibell_network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: unibell_app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/unibell_cs_db
+      SPRING_DATASOURCE_USERNAME: username
+      SPRING_DATASOURCE_PASSWORD: password
+    depends_on:
+      - postgres
+    networks:
+      - unibell_network
+
+volumes:
+  postgres_data:
+
+networks:
+  unibell_network:
